@@ -1,9 +1,12 @@
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GNL_
+#define GNL_
 
-# include <unistd.h>
+# include <stdio.h>
 # include <stdlib.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <errno.h>
 
-int	get_next_line(char **line);
+int get_next_line();
 
 #endif

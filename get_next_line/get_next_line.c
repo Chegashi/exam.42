@@ -1,34 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncolomer <ncolomer@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mochegri <mochegri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/11 16:29:19 by ncolomer          #+#    #+#             */
-/*   Updated: 2019/11/14 19:20:21 by ncolomer         ###   ########.fr       */
+/*   Updated: 2021/07/25 19:12:19 by mochegri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include "get_next_line.h"
 
-int
-	main(void)
-{
-	int		r;
-	char	*line;
+// int get_next_line()
+// {
+// 	char *bf;
 
-	line = NULL;
-	while ((r = get_next_line(&line)) > 0)
+// 	read(3, bf, 1);
+// 	while (*bf && *bf != '\n')
+// 	{
+// 		printf("%s", bf);
+// 		read(3, bf, 1);
+// 	}
+	
+// 	return 1;
+// }
+
+int main()
+{
+	int fd = open("subject.fr.txt", O_RDONLY);
+	char bf[1];
+	int n =0;
+
+	do
 	{
-		printf("%s\n", line);
-		free(line);
-		line = NULL;
-	}
-	printf("%s", line);
-	free(line);
-	line = NULL;
+		if (read(fd, bf, 1) > 0)
+			n++;
+		write(1, bf, 1);
+
+	}while (*bf && *bf != '\n');
+	close(fd);
+	printf("%d", n);
+	return 0;
 }
