@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 int		ft_strlen(char *s)
 {
 	char *start;
@@ -26,7 +26,7 @@ char	*ft_strdup(char *s)
 	return (start);
 }
 
-char	ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	int n;
 	char *str;
@@ -45,27 +45,38 @@ char	ft_strjoin(char *s1, char *s2)
 
 int	ft_strchr(char *s, char c)
 {
+	char	*start;
+
+	start = s;
 	while(*s)
 		if (*s++ == c)
-			return (1);
-	return (0);
+			return (s - start);
+	return (-1);
 }
 
-void	ft_fille(char **line, char **rest)
+char	*ft_fill(char **line)
 {
 	int i;
 	char *tmp;
+	char	*rest;
+	int indice;
+	int	len;
 
 	tmp =  ft_strdup(*line);
+	indice = ft_strchr(*line, '\n');
+	*line = (char*)malloc(sizeof(char) * (indice + 1));
 	i = -1;
-	j = -1;
-
-	while (line[0][++j] && line[0][j] == '\n)
-		;
-	ft_strncpy(*line, tmp, j);
-	ft_srncpy(*rest, tmp + j);
-
+	while (++i < indice)
+		(*line)[i] = tmp[i];
+	len = ft_strlen(tmp);
+	rest = (char*)malloc(sizeof(char) * (len - indice + 1));
+	i = -1;
+	while (++i < len)
+		rest[i] = tmp[i + indice];
+	rest[i] = 0;
+	return (rest);
 }
+
 int get_next_line(int fd, char **line)
 {
 	static char *rest = NULL;
@@ -78,21 +89,27 @@ int get_next_line(int fd, char **line)
 			rest = ft_strdup("");
 	while (1337)
 	{
-		buffer = (char*)malloc(sizeof(char) *  BUFFER_SIZE);
+		buffer = (char*)malloc(sizeof(char) *  (BUFFER_SIZE + 1));
 		n = read(fd, buffer, BUFFER_SIZE);
 		buffer[n] = 0;
 		*line = ft_strjoin(rest, buffer);
 		free(rest);
-		if (ft_strchr(*line, '\n'))
+		if (ft_strchr(*line, '\n') > 0)
 		{
-			ft_fill(line, &rest);
+			rest = ft_fill(line);
 			return (1);
 		}
 		if (!n)
 			return (0);
 		rest = ft_strdup("");
-
 	}
 	return (n);
 }
 
+int main()
+{
+	char **s;
+	get_next_line(0, s);
+	printf("|%s|", *s);
+	return (0);
+}
