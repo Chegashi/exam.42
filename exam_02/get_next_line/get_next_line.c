@@ -64,13 +64,14 @@ char	*ft_fill(char **line)
 
 	tmp =  ft_strdup(*line);
 	indice = ft_strchr(*line, '\n');
-	*line = (char*)malloc(sizeof(char) * (indice + 1));
+	*line = (char*)malloc(sizeof(char) * indice);
 	i = -1;
 	while (++i < indice)
 		(*line)[i] = tmp[i];
+	(*line)[indice] = 0;
 	len = ft_strlen(tmp);
 	rest = (char*)malloc(sizeof(char) * (len - indice + 1));
-	i = -1;
+	i = 1;
 	while (++i < len)
 		rest[i] = tmp[i + indice];
 	rest[i] = 0;
@@ -109,7 +110,9 @@ int get_next_line(int fd, char **line)
 int main()
 {
 	char **s;
-	get_next_line(0, s);
-	printf("|%s|", *s);
+	int fd;
+	fd = open("get_next_line.c", "r");
+	get_next_line(fd, s);
+	printf("|%s|\n", *s);
 	return (0);
 }
