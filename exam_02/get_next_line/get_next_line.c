@@ -1,123 +1,133 @@
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
+#include <unistd.h>
 
-int	ft_strlen(char *s)
+int	ft_is_line(char *str)
 {
-	char	*start;
+	char	*iter;
 
-	start = s;
-	while (*s++)
+	iter = str;
+	while (*iter)
+		if (*iter++ == '\n')
+			return (iter - str -1);
+	return (-1);
+}
+
+int	ft_strlen(char *str)
+{
+	char *iter;
+
+	iter = str;
+	while (*iter++)
 		;
-	return (s - start);
+	return (iter - str -1);
 }
 
 char	*ft_strdup(char *s)
 {
 	int		n;
+	char	*iter;
 	char	*str;
-	char	*start;
 
 	n = ft_strlen(s);
-	str = malloc(sizeof(char) * (1 + n));
-	start = str;
+	str = (char*)malloc(sizeof(char) * (n + 1));
+	iter = str;
 	while (*s)
-		*str++ = *s++;
-	*str = 0;
-	return (start);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
-{
-	int		n;
-	char	*str;
-	int		i;
-
-	n = ft_strlen(s1) + ft_strlen(s2) + 1;
-	str = (char *)malloc(sizeof(char) * n);
-	i = -1;
-	while (*s1)
-		str[++i] = *s1++;
-	while (*s2)
-		str[++i] = *s2++;
-	str[++i] = 0;
+		*iter++ = *s++;
+	*iter = 0;
 	return (str);
 }
 
-int	ft_strchr(char *s, char c)
+char *ft_strjoin(char *s1, char *s2)
 {
-	char	*start;
+	int		n;
+	char	*ret;
+	char	*iter;
 
-	start = s;
-	while (*s)
-		if (*s++ == c)
-			return (s - start);
-	return (-1);
+	n = ft_strlen(s1) + ft_strlen(s2) + 1;
+	ret = (char*)malloc(sizeof(char) * n);
+	iter = ret;
+	while (*s1)
+		*iter++ = *s1++;
+	while (*s2)
+		*iter++ = *s2++;
+	*iter = 0;
+	return (ret);
 }
 
 char	*ft_fill(char **line, char **rest)
 {
-	int		i;
-	char	*tmp;
+	char	*str;
 	int		indice;
 	int		len;
+	char	*iter;
 
-	tmp = ft_strdup(*line);
+	str = ft_strdup(*line);
 	free(*line);
-	indice = ft_strchr(tmp, '\n');
-	*line = (char *)malloc(sizeof(char) * indice);
-	i = -1;
-	while (++i < indice)
-		(*line)[i] = tmp[i];
-	(*line)[indice] = 0;
-	len = ft_strlen(tmp);
-	*rest = (char *)malloc(sizeof(char) * (len - indice + 1));
-	i = 1;
-	while (++i < len)
-		(*rest)[i] = tmp[i + indice];
-	(*rest)[i] = 0;
-	return (*line);
+	len = ft_strlen(str);
+	indice = ft_is_line(str);
+	*line = (char*)malloc(sizeof(char) * (indice + 2));
+	iter = *line;
+	while (*str && *str != '\n')
+		*iter++ = *str++;
+	*iter++ = *str++;
+	*iter = 0;
+	*rest = (char*)malloc(sizeof(char) * (len - indice + 1));
+	iter = *rest;
+	while (*str)
+		*iter++ = *str++;
+	*iter = 0;
+	free(str - len);
+	return	(*line);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*rest = NULL;
-	char		*buffer;
 	char		*line;
+	static char	*rest = NULL;
 	char		*tmp;
+	char		*buffer;
 	int			n;
 
-	if (fd < 0 || BUFFER_SIZE < 0 || read(fd, NULL, 0))
-		return (NULL);
 	if (!rest)
 		rest = ft_strdup("");
 	line = ft_strdup(rest);
 	free(rest);
 	rest = NULL;
-	while (1337)
+	while(42)
 	{
-		if (ft_strchr(line, '\n') > 0)
+		if(ft_is_line(line) >= 0)
 			return (ft_fill(&line, &rest));
-		buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+		buffer = (char*)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		n = read(fd, buffer, BUFFER_SIZE);
-		if (!n)
-			return (0);
 		buffer[n] = 0;
 		tmp = ft_strjoin(line, buffer);
 		free(line);
+		free(buffer);
 		line = tmp;
+		if (!n && *line == 0)
+		{	
+			free(line);
+			return (NULL);
+		}
+		if (!n)
+			return(line);
+		
 	}
-	return (line);
 }
 
-int	main()
+int main()
 {
-	char	*s;
-	int		fd;
+	char *s;
+	int fd;
 
 	fd = open("get_next_line.c", O_RDONLY);
 	while ((s = get_next_line(fd)))
-		printf("%s\n", s);
+	{
+		printf("%s", s);
+		free(s);
+	}
 	return (0);
 }
+//gcc get_next_line.c -Wall -Wextra -Werror  -D BUFFER_SIZE=100 -g -fsanitize=address
