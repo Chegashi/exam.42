@@ -90,8 +90,6 @@ char	*get_next_line(int fd)
 	char		*buffer;
 	int			n;
 
-	if (fd < 0 || BUFFER_SIZE <= 0|| read(fd, NULL, 0)  )
-		return (NULL);
 	if (!rest)
 		rest = ft_strdup("");
 	line = ft_strdup(rest);
@@ -118,3 +116,5 @@ char	*get_next_line(int fd)
 		
 	}
 }
+
+
