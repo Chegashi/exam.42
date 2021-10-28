@@ -33,4 +33,6 @@ int	main(void)
 	n=ft_printf("-%d-%x-%d-%x-%d-%x-%d-%x-\n", 0, 0, 42, 42, 2147483647, 2147483647, (int)-2147483648, (int)-2147483648);ft_printf("{%d}\n", n);
 	n=ft_printf("\n");ft_printf("{%d}\n", n);
 	n=ft_printf("%s%s%s\n", "", "toto", "wiurwuyrhwrywuier");ft_printf("{%d}\n", n);
-	n=ft_printf("-%s-%s-%s-\n", "", "toto", "wiurwuyrhwrywuier");ft_printf("{%d}\n", n);}
+	n=ft_printf("-%s-%s-%s-\n", "", "toto", "wiurwuyrhwrywuier");ft_printf("{%d}\n", n);
+	n=ft_printf("-%s-%s-%s%d-\n", "", "toto", "wiurwuyrhwrywuier", 0);ft_printf("{%d}\n", n);
+}

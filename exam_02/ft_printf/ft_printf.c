@@ -19,11 +19,6 @@ void    print_nb(int number, char *base, int b, int *ret)
     long long   n;
 
     n = number;
-    if (!n)
-    {    
-        ft_write('0', ret);
-        return ;
-    }
     if (n < 0 && b == 10)
     {
         ft_write('-', ret);
