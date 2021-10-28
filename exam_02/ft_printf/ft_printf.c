@@ -1,88 +1,71 @@
 #include <unistd.h>
 #include <stdarg.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-int abs(int n)
+void ft_write(char c, int *ret)
 {
-    return ( n > 0 ? n : -1 * n);
+    write(1, &c, 1);
+    (*ret)++;
 }
 
-void ft_putstr(char *s)
+void ft_putstr(char *s, int *ret)
 {
-    if (!s)
-    {
-        write (1, "(null)", 6);
-        return ;
-    }
     while (*s)
-        write(1, s++, 1);
+        ft_write(*s++, ret);
 }
 
-void    print_nb(int nember, int base)
+void    print_nb(int number, char *base, int b, int *ret)
 {
-    char    *base_t;
-    char    *nbr;
-    int     i;
-    int     signe;
-    long    n;
+    long long   n;
 
-    n = nember;
-    signe = 0;
-    i = -1;
+    n = number;
     if (!n)
     {    
-        write(1, "0", 1);
+        ft_write('0', ret);
         return ;
     }
-    if (n < 0)
-        signe = 1;
-    if (n < 0 && base== 16)
+    if (n < 0 && b == 10)
     {
+        ft_write('-', ret);
+        n *= -1;
+    }
+    if (n < 0 && b== 16)
         n += 4294967296;
-    }
-    if (base == 10)
-        base_t = strdup("0123456789");
-    else
-        base_t = strdup("0123456789abcdef");
-    nbr = (char*)malloc(sizeof(char) * 11); 
-    while (n)
+    if ((n > 9 && b == 10) || (n > 15 && b == 16))
     {
-        *(nbr + ++i) = *(base_t + abs(n % base));
-        n /= base;
+        print_nb(n / b, base , b, ret);
+        print_nb(n % b, base , b, ret);
     }
-    *(nbr + ++i) = 0;
-    if (signe && base == 10)
-        write(1, "-", 1);
-    while (--i >= 0)
-        write (1, nbr + i, 1);
-    free(base_t);
-    free(nbr);
+    else
+        ft_write(*(base + n), ret);
 }
 
 int     ft_printf(const char *fm, ...)
 {
     va_list ap;
+    int     ret;
+    char    *t = "012356789";
+    char    *T = "0123456789abcdef";
 
+    ret = 0;
     va_start(ap, fm);
     while (*fm)
     {
         if (*fm != '%')
-            write(1, fm, 1);
+            ft_write(*fm, &ret);
         else
         {
             fm++;
             switch (*fm)
             {
                 case 'd':
-                    print_nb(va_arg(ap, int), 10);
+                    print_nb(va_arg(ap, int), t, 10, &ret);
                     break;
                 case 'x':
-                    print_nb(va_arg(ap, unsigned int), 16);
+                    print_nb(va_arg(ap, unsigned int), T, 16, &ret);
                     break;
                 case 's':
-                    ft_putstr(va_arg(ap, char*));
+                    ft_putstr(va_arg(ap, char*), &ret);
                     break;
                 default:
                     break;
@@ -91,5 +74,5 @@ int     ft_printf(const char *fm, ...)
         fm++;
     }
     va_end(ap);
-    return (0);
+    return(ret);
 }
