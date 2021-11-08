@@ -9,7 +9,7 @@ int main(int ac, char **av)
 {
 	char *s;
 	int fd;
-    (void)ac;
+	(void)ac;
 	fd = open(av[1], O_RDONLY);
 	while ((s = get_next_line(fd)))
 	{

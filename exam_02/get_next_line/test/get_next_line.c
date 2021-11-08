@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-int	ft_is_line(char *str)
+int		ft_is_line(char *str)
 {
 	char	*iter;
 
@@ -14,7 +14,7 @@ int	ft_is_line(char *str)
 	return (-1);
 }
 
-int	ft_strlen(char *str)
+int		ft_strlen(char *str)
 {
 	char *iter;
 
@@ -39,47 +39,64 @@ char	*ft_strdup(char *s)
 	return (str);
 }
 
-char *ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
-	int		n;
-	char	*ret;
+	char	*str;
 	char	*iter;
 
-	n = ft_strlen(s1) + ft_strlen(s2) + 1;
-	ret = (char*)malloc(sizeof(char) * n);
-	iter = ret;
+	str = (char*)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	iter = str;
 	while (*s1)
 		*iter++ = *s1++;
 	while (*s2)
 		*iter++ = *s2++;
 	*iter = 0;
-	return (ret);
+	return (str);
 }
 
-char	*ft_fill(char **line, char **rest)
+char	*before_end_l(char *str)
 {
-	char	*str;
-	int		indice;
 	int		len;
+	char	*line;
 	char	*iter;
 
-	str = ft_strdup(*line);
-	free(*line);
-	len = ft_strlen(str);
-	indice = ft_is_line(str);
-	*line = (char*)malloc(sizeof(char) * (indice + 2));
-	iter = *line;
+	if ((len = ft_is_line(str)) < 0)
+		len = ft_strlen(str);
+	line = (char*)malloc(sizeof(char) * (len + 2));
+	iter = line;
 	while (*str && *str != '\n')
 		*iter++ = *str++;
-	*iter++ = *str++;
+	*iter++ = *str;
 	*iter = 0;
-	*rest = (char*)malloc(sizeof(char) * (len - indice + 1));
-	iter = *rest;
+	return (line);
+}
+
+char	*after_end_l(char *str)
+{
+	int		indice;
+	char	*line;
+	char	*iter;
+
+	indice = ft_is_line(str);
+	if ((indice = ft_is_line(str)) < 0)
+		return (NULL);
+	line = (char*)malloc(sizeof(char) * (ft_strlen(str) - indice + 2));
+	iter = line;
+	str += indice + 1;
 	while (*str)
 		*iter++ = *str++;
 	*iter = 0;
-	free(str - len);
-	return	(*line);
+	return (line);
+}
+
+char	*ft_get_line(char **line, char **rest)
+{
+	char	*str;
+
+	str = before_end_l(*line);
+	*rest = after_end_l(*line);
+	free(*line);
+	return (str);
 }
 
 char	*get_next_line(int fd)
@@ -98,7 +115,7 @@ char	*get_next_line(int fd)
 	while(42)
 	{
 		if(ft_is_line(line) >= 0)
-			return (ft_fill(&line, &rest));
+			return (ft_get_line(&line, &rest));
 		buffer = (char*)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		n = read(fd, buffer, BUFFER_SIZE);
 		buffer[n] = 0;
@@ -106,15 +123,15 @@ char	*get_next_line(int fd)
 		free(line);
 		free(buffer);
 		line = tmp;
-		if (!n && *line == 0)
-		{	
-			free(line);
-			return (NULL);
-		}
 		if (!n)
-			return(line);
-		
+		{
+			if (*line)
+				return(line);
+			else
+			{
+				free(line);
+				return (NULL);
+			}
+		}
 	}
 }
-
-
