@@ -68,29 +68,12 @@ char *ft_befor_endl(char *str)
 	return (s);
 }
 
-char *ft_after_endl(char *str)
-{
-	char *iter;
-	char *s;
-	int n;
-
-	if ((n = ft_is_line(str)) < 0)
-		return (NULL);
-	str += n + 1;
-	s = (char*)malloc(sizeof(char) * (ft_strlen(str) + 2));
-	iter = s;
-	while (*str)
-		*iter++ = *str++;
-	*iter = 0;
-	return (s);
-}
-
 char *ft_fill(char **line, char **rest)
 {
 	char *str;
 
 	str = ft_befor_endl(*line);
-	*rest = ft_after_endl(*line);
+	*rest = ft_strdup(*line + ft_strlen(str));
 	free(*line);
 	return (str);
 }
