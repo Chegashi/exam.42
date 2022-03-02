@@ -1,7 +1,5 @@
 #include "get_next_line.h"
 
-#include <stdio.h>
-
 int ft_strlen(char *str)
 {
 	char *iter;
@@ -55,11 +53,8 @@ char *ft_befor_endl(char *str)
 {
 	char *iter;
 	char *s;
-	int n;
 
-	if ((n = ft_is_line(str)) < 0)
-		return (ft_strdup("str"));
-	s = (char*)malloc(sizeof(char) * (n + 2));
+	s = (char*)malloc(sizeof(char) * (ft_is_line(str) + 2));
 	iter = s;
 	while (*str && *str != '\n')
 		*iter++ = *str++;
@@ -81,12 +76,12 @@ char *ft_fill(char **line, char **rest)
 char *get_next_line(int fd)
 {
 	char		*line;
-	char 		*buffer;
+	char 		buffer[1000005];
 	static char *rest = NULL;
 	char 		*tmp;
 	int			n;
 
-	if (BUFFER_SIZE <= 0 || fd < 0 || read(fd, NULL, BUFFER_SIZE) > 0)
+	if (BUFFER_SIZE <= 0 || fd < 0 || read(fd, NULL, BUFFER_SIZE) > 0 || BUFFER_SIZE > 1000000)
 		return NULL;
 	if (!rest)
 		rest = ft_strdup("");
@@ -97,23 +92,17 @@ char *get_next_line(int fd)
 	{
 		if (ft_is_line(line) >= 0)
 			return (ft_fill(&line, &rest));
-		buffer = (char*)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		n = read(fd, buffer, BUFFER_SIZE);
 		buffer[n] = 0;
 		tmp = ft_strjoin(line, buffer);
-		free(buffer);
 		free(line);
 		line = tmp;
-		if (!n)
+		if (!n && *line)
+			return (line);
+		else if(!n)
 		{
-			if (*line)
-				return (line);
-			else
-			{
-				free(line);
-				return (NULL);
-			}
+			free(line);
+			return (NULL);
 		}
 	}
-
 }
