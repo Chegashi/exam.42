@@ -1,101 +1,108 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-#define Error_1 "Error: FATAL\n"
-
-typedef struct s_token
+typedef struct	s_cmds
 {
-	char	**cmd;
-	int		std_input;
-	int		std_output;
-}	t_token;
+	char			**arg;
+	int				std_in;
+	int				std_out;
+	int				ac;
+	struct s_cmds	*next;
+}				t_cmds;
 
-int ft_strlen(char *s)
+int	ft_strlen(char *str)
 {
-	char *iter = s;
-	while (*iter++)
+	char *itr = str;
+	while (*itr++)
 		;
-	return (iter - s - 1);
+	return (itr - str -1);
 }
 
-char *ft_strdup(char *s)
+void ft_putsr(char *str)
 {
-	char *str = (char*)malloc(sizeof(char) * (ft_strlen(s) + 1));
-	char *iter = str;
-	while (*s)
-		*iter++ = *s++;
+	write(1, str, ft_strlen(str));
+}
+
+char *ft_strdup(char *str)
+{
+	char *s = (char*)malloc(sizeof(char) * (ft_strlen(str) + 1));
+	char *iter = s;
+	while (*str)
+		*iter++ = *str++;
 	*iter = 0;
-	return (str);
+	return (s);
 }
 
-int	print_error(char *error)
+t_cmds *init_cmd(int ac)
 {
-	write(1, error, ft_strlen(error));
-		return (1);
+	t_cmds *cmd;
+	cmd = (t_cmds *)malloc(sizeof(t_cmds));
+	cmd->std_in = -1;
+	cmd->std_out = -1;
+	cmd->ac = 0;
+	cmd->arg = (char**)malloc(sizeof(char *) * ac);
+	cmd->next = NULL;
+	return (cmd);
 }
 
-t_token	*init_tokens(char **av, int ac)
+void add_cmd(t_cmds *cmd, char *av)
 {
-	t_token	*tokens;
-	int		k = 0;
+	if (!cmd->ac && cmd->std_in < 0)
+		cmd->std_in = 1;
+	if (!cmd->ac && cmd->std_out < 0)
+		cmd->std_out = 0;
+	cmd->arg[(cmd->ac)++] = ft_strdup(av);
+}
+void	ft_pipe(t_cmds **cmd, int ac)
+{
+	int fds[2];
 
-	tokens = (t_token*)malloc(sizeof(t_token) * ac);
-	for (int i = 0; i < ac; i++)
+	pipe(fds);
+	(*cmd)->std_in = fds[0];
+	(*cmd)->next = init_cmd(ac);
+	(*cmd)->next->ac = 0;
+	(*cmd)->next->std_out = fds[1];
+	(*cmd)->next->std_in = 0;
+	(*cmd) = (*cmd)->next;
+}
+
+int main(int ac, char **av, char **env)
+{
+	t_cmds *head;
+	t_cmds *current;
+	int		start = 1;
+
+	ac--;
+	current = init_cmd(ac);
+	head = current;
+	while (*++av)
 	{
-		tokens[i].cmd = (char**)malloc(sizeof(char*) * ac);
-		for (int j = 0; av[k] && strcmp(av[k], ";") && strcmp(av[k], "|"); j++)
+		if(strcmp(*av, ";") && strcmp(*av, "|"))
 		{
-			if (av[k])
-			{
-				printf("%s\n", av[k]);
-				tokens[i].cmd[j] = ft_strdup(av[k++]);
-			}
+			add_cmd(current, *av);
+			continue;
+		}
+		if (*av && strcmp(*av, "|"))
+			ft_pipe(&current, ac);
+		if (*av && strcmp(*av, ";"))
+		{
+			current->next = init_cmd(ac);
+			current = current->next;
 		}
 	}
 
-	// t = (t_token*)malloc(sizeof(t_token));
-	// t->cmd = (char**)malloc(sizeof(char*) * 1024);
-	// if (!t || !t->cmd)
-	// 	print_error(Error_1);
-	// for (size_t i = 0; i < 1024; i++)
-	// 	t->cmd[i] = NULL;	
-	// t->std_input = 1;
-	// t->std_output = 0;
-	return (tokens);
-}
-
-// void	add_cmd(char *av, t_token *token)
-// {
-// 	static int i = 0;
-// 	if (!i)
-// 		token->cmd = ' ';
-// 	for(; av[i] && av[i] != ';' && av[i] != '|'; i++)
-// 		token->cmd[i] = av[i];
-// 	token->cmd[i] = 0;
-// }
-
-// void	exec_cmd(t_token *curent)
-// {
-// 	write(1, curent->cmd, ft_strlen(curent->cmd));
-// 	write(1, "\n", 1);
-// }
-
-// void	ft_pipe(t_token *token)
-// {
-// 	int fds[2];
-
-// 	pipe(fds);
-// 	token->next =  init_token();
-// 	token->next->std_input = fds[0];
-// 	token->std_output = fds[1];
-// }
-
-int main(int ac, char **av)
-{
-	t_token *tokens;
-
-	tokens = init_tokens(av + 1, ac);
+	current = head;
+	while (current)
+	{
+		for (int i = 0; i < current->ac; i++)
+		{
+			printf("%s ", current->arg[i]);
+		}
+		printf("\n");
+		current = current->next;
+	}
+	system("leaks microshell");
 	return (0);
 }
