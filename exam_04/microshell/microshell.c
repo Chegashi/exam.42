@@ -41,20 +41,23 @@ t_cmds *init_cmd(int ac)
 	cmd = (t_cmds *)malloc(sizeof(t_cmds));
 	cmd->std_in = -1;
 	cmd->std_out = -1;
-	cmd->ac = 0;
+	cmd->ac = -1;
 	cmd->arg = (char**)malloc(sizeof(char *) * ac);
+	for (size_t i = 0; i < ac; i++)
+		cmd->arg[i] = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }
 
 void add_cmd(t_cmds *cmd, char *av)
 {
-	if (!cmd->ac && cmd->std_in < 0)
+	if (cmd->ac < 0 && cmd->std_in < 0)
 		cmd->std_in = 1;
 	if (!cmd->ac && cmd->std_out < 0)
 		cmd->std_out = 0;
-	cmd->arg[(cmd->ac)++] = ft_strdup(av);
+	cmd->arg[++(cmd->ac)] = ft_strdup(av);
 }
+
 void	ft_pipe(t_cmds **cmd, int ac)
 {
 	int fds[2];
@@ -68,12 +71,50 @@ void	ft_pipe(t_cmds **cmd, int ac)
 	(*cmd) = (*cmd)->next;
 }
 
+void ft_free(t_cmds *current)
+{
+	t_cmds *tmp;
+
+	while (current)
+	{
+		for (int i = 0; i < current->ac; i++)
+			if (current->arg[i])
+				free(current->arg[i]);
+		tmp = current->next;
+		free(current);
+		current = tmp;
+	}
+}
+
+void print_error(char *error) 
+{
+    write(2, error, ft_strlen(error));
+}
+
+void ft_exec_cmd(t_cmds *current)
+{
+	t_cmds *tmp;
+
+	while (current)
+	{
+		if (!strcmp(current->arg[0], "cd"))
+		{
+			if (current->ac != 1)
+				print_error("Error cd: Bad arguments\n");
+			else if (chdir(current->arg[1]) != 0)
+				print_error("Error cd: cannot change directory\n");
+		}
+		current = current->next;
+	}
+}
+
 int main(int ac, char **av, char **env)
 {
 	t_cmds *head;
 	t_cmds *current;
-	int		start = 1;
 
+	int		start = 1;
+	int		i;
 	ac--;
 	current = init_cmd(ac);
 	head = current;
@@ -92,17 +133,7 @@ int main(int ac, char **av, char **env)
 			current = current->next;
 		}
 	}
-
-	current = head;
-	while (current)
-	{
-		for (int i = 0; i < current->ac; i++)
-		{
-			printf("%s ", current->arg[i]);
-		}
-		printf("\n");
-		current = current->next;
-	}
-	system("leaks microshell");
+	ft_exec_cmd(head);
+	ft_free(head);
 	return (0);
 }

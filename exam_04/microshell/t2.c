@@ -1,9 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
-int main(int ac, char **av, char **env)
-{
-	execve("/bin/echo", av +1, env);
-	return (0);
+#include<stdio.h>
+  
+// chdir function is declared
+// inside this header
+#include<unistd.h> 
+int main()
+{   
+    char s[100];
+  
+    // printing current working directory
+    printf("%s\n", getcwd(s, 100));
+  
+    // using the command
+    chdir("/Users/mochegri/exam.42");
+  
+    // printing current working directory
+    printf("%s\n", getcwd(s, 100));
+  
+    // after chdir is executed
+    return 0;
 }
