@@ -43,7 +43,7 @@ t_cmds *init_cmd(int ac)
 	cmd->std_out = -1;
 	cmd->ac = -1;
 	cmd->arg = (char**)malloc(sizeof(char *) * ac);
-	for (size_t i = 0; i < ac; i++)
+	for (int i = 0; i < ac; i++)
 		cmd->arg[i] = NULL;
 	cmd->next = NULL;
 	return (cmd);
@@ -53,7 +53,7 @@ void add_cmd(t_cmds *cmd, char *av)
 {
 	if (cmd->ac < 0 && cmd->std_in < 0)
 		cmd->std_in = 1;
-	if (!cmd->ac && cmd->std_out < 0)
+	if (cmd->ac < 0 && cmd->std_out < 0)
 		cmd->std_out = 0;
 	cmd->arg[++(cmd->ac)] = ft_strdup(av);
 }
@@ -65,7 +65,7 @@ void	ft_pipe(t_cmds **cmd, int ac)
 	pipe(fds);
 	(*cmd)->std_in = fds[0];
 	(*cmd)->next = init_cmd(ac);
-	(*cmd)->next->ac = 0;
+	(*cmd)->next->ac = -1;
 	(*cmd)->next->std_out = fds[1];
 	(*cmd)->next->std_in = 0;
 	(*cmd) = (*cmd)->next;
@@ -89,12 +89,11 @@ void ft_free(t_cmds *current)
 void print_error(char *error) 
 {
     write(2, error, ft_strlen(error));
+	exit(1);
 }
 
-void ft_exec_cmd(t_cmds *current)
+void ft_exec_cmd(t_cmds *current, char **env)
 {
-	t_cmds *tmp;
-
 	while (current)
 	{
 		if (!strcmp(current->arg[0], "cd"))
@@ -103,7 +102,27 @@ void ft_exec_cmd(t_cmds *current)
 				print_error("Error cd: Bad arguments\n");
 			else if (chdir(current->arg[1]) != 0)
 				print_error("Error cd: cannot change directory\n");
+			current = current->next;
+			continue;
 		}
+		int pid = fork();
+		if (pid < 0)
+			print_error("Error: FATAL\n");
+		if (!pid)
+		{
+			if (current->std_in == 0)
+			{	
+				if (dup2(current->std_in , 0) == -1)
+					print_error("Error : FATAL\n");
+			}
+			if (current->std_out == 1)
+			{
+				if (dup2(current->std_out , 1) == -1)
+					print_error("Error : FATAL\n");
+			}
+			execve(current->arg[0], current->arg, env);
+		}
+		waitpid(0, NULL, 0);
 		current = current->next;
 	}
 }
@@ -113,8 +132,6 @@ int main(int ac, char **av, char **env)
 	t_cmds *head;
 	t_cmds *current;
 
-	int		start = 1;
-	int		i;
 	ac--;
 	current = init_cmd(ac);
 	head = current;
@@ -133,7 +150,7 @@ int main(int ac, char **av, char **env)
 			current = current->next;
 		}
 	}
-	ft_exec_cmd(head);
+	ft_exec_cmd(head, env);
 	ft_free(head);
 	return (0);
 }

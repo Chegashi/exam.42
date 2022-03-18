@@ -6,17 +6,9 @@
 #include<unistd.h> 
 int main()
 {   
-    char s[100];
-  
-    // printing current working directory
-    printf("%s\n", getcwd(s, 100));
-  
-    // using the command
-    chdir("/Users/mochegri/exam.42");
-  
-    // printing current working directory
-    printf("%s\n", getcwd(s, 100));
-  
-    // after chdir is executed
+    close(0);
+    close(1);
+    close(2);
+    close(3);
     return 0;
 }
