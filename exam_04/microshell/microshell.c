@@ -93,6 +93,7 @@ void ft_free(t_cmds *cmds, int ac)
 	{
 		for (int j = 0; j < cmds[i].len; j++)
 			free(cmds[i].arg[j]);
+		free(cmds[i].arg);
 		close(cmds[i].in);
 		close(cmds[i].out);
 	}
@@ -101,7 +102,7 @@ void ft_free(t_cmds *cmds, int ac)
 
 void ft_exec_cmd(t_cmds *cmds, int ac, char **env)
 {
-	for (int i = 0; i < ac; i++)
+	for (int i = 0; i < ac && cmds[i].arg[0]; i++)
 	{
 		if (!strcmp(cmds[i].arg[0], "cd"))
 		{
@@ -160,6 +161,7 @@ int main(int ac, char **av, char **env)
 			ft_pipe(cmds + k);
 		k++;
 	}
+	ft_exec_cmd(cmds, ac, env);
  	ft_free(cmds, ac);
 	return (0);
 }
