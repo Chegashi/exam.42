@@ -3,13 +3,18 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#define std_in 0
+#define std_out 1
+#define pipe_in	1
+#define pipe_out 2
+#define pipe_not 0
+
 typedef struct	s_cmds
 {
-	char			**arg;
-	int				std_in;
-	int				std_out;
-	int				ac;
-	struct s_cmds	*next;
+	char	**arg;
+	int		in;
+	int		out;
+	int		len;
 }				t_cmds;
 
 int	ft_strlen(char *str)
@@ -35,74 +40,74 @@ char *ft_strdup(char *str)
 	return (s);
 }
 
-t_cmds *init_cmd(int ac)
-{
-	t_cmds *cmd;
-	cmd = (t_cmds *)malloc(sizeof(t_cmds));
-	cmd->std_in = -1;
-	cmd->std_out = -1;
-	cmd->ac = -1;
-	cmd->arg = (char**)malloc(sizeof(char *) * ac);
-	for (int i = 0; i < ac; i++)
-		cmd->arg[i] = NULL;
-	cmd->next = NULL;
-	return (cmd);
-}
-
-void add_cmd(t_cmds *cmd, char *av)
-{
-	if (cmd->ac < 0 && cmd->std_in < 0)
-		cmd->std_in = 1;
-	if (cmd->ac < 0 && cmd->std_out < 0)
-		cmd->std_out = 0;
-	cmd->arg[++(cmd->ac)] = ft_strdup(av);
-}
-
-void	ft_pipe(t_cmds **cmd, int ac)
-{
-	int fds[2];
-
-	pipe(fds);
-	(*cmd)->std_in = fds[0];
-	(*cmd)->next = init_cmd(ac);
-	(*cmd)->next->ac = -1;
-	(*cmd)->next->std_out = fds[1];
-	(*cmd)->next->std_in = 0;
-	(*cmd) = (*cmd)->next;
-}
-
-void ft_free(t_cmds *current)
-{
-	t_cmds *tmp;
-
-	while (current)
-	{
-		for (int i = 0; i < current->ac; i++)
-			if (current->arg[i])
-				free(current->arg[i]);
-		tmp = current->next;
-		free(current);
-		current = tmp;
-	}
-}
-
 void print_error(char *error) 
 {
     write(2, error, ft_strlen(error));
 	exit(1);
 }
 
-void ft_exec_cmd(t_cmds *current, char **env)
+int compt_arg(char **av)
 {
-	while (current)
+	int i = 0;
+	while (*++av)
+		if (strcmp(*av, ";") && strcmp(*av, "|"))
+			i++;
+	return (i);
+}
+
+t_cmds *init_cmd(int ac)
+{
+	if (ac < 1)
+		exit (1);
+	t_cmds *cmd = (t_cmds*)malloc(sizeof(t_cmds) * (ac));
+	for (int i = 0; i < ac; i++)
 	{
-		if (!strcmp(current->arg[0], "cd"))
+		cmd[i].in = 0;
+		cmd[i].out = 1;
+		cmd[i].len = 0;
+		cmd[i].arg = (char**)malloc(sizeof(char *) * ac);
+		for (int j = 0; j < ac; j++)
+			cmd[i].arg[j] = NULL;
+	}
+	return (cmd);
+}
+
+void add_cmd(t_cmds *cmd, char *av)
+{
+	cmd->arg[(cmd->len++)] = ft_strdup(av);
+}
+
+void	ft_pipe(t_cmds *cmd)
+{
+	int fds[2];
+
+	pipe(fds);
+	cmd->in = fds[0];
+	(cmd + 1)->out = fds[1];
+}
+
+void ft_free(t_cmds *cmds, int ac)
+{
+	for (int i = 0; i < ac; i++)
+	{
+		for (int j = 0; j < cmds[i].len; j++)
+			free(cmds[i].arg[j]);
+		close(cmds[i].in);
+		close(cmds[i].out);
+	}
+	free (cmds);
+}
+
+void ft_exec_cmd(t_cmds *cmds, int ac, char **env)
+{
+	for (int i = 0; i < ac; i++)
+	{
+		if (!strcmp(cmds[i].arg[0], "cd"))
 		{
-			if (current->ac != 1)
+			if (cmds[i].len != 1)
 				print_error("Error cd: Bad arguments\n");
-			else if (chdir(current->arg[1]) != 0)
+			else if (chdir(cmds[i].arg[1]) != 0)
 				print_error("Error cd: cannot change directory\n");
-			current = current->next;
 			continue;
 		}
 		int pid = fork();
@@ -110,47 +115,50 @@ void ft_exec_cmd(t_cmds *current, char **env)
 			print_error("Error: FATAL\n");
 		if (!pid)
 		{
-			if (current->std_in == 0)
+			if (cmds[i].in != 0)
 			{	
-				if (dup2(current->std_in , 0) == -1)
+				if (dup2(cmds[i].in , 0) == -1)
 					print_error("Error : FATAL\n");
 			}
-			if (current->std_out == 1)
+			if (cmds[i].out == 1)
 			{
-				if (dup2(current->std_out , 1) == -1)
+				if (dup2(cmds[i].out , 1) == -1)
 					print_error("Error : FATAL\n");
 			}
-			execve(current->arg[0], current->arg, env);
+			execve(cmds[i].arg[0], cmds[i].arg, env);
 		}
 		waitpid(0, NULL, 0);
-		current = current->next;
+	}
+}
+
+void	ft_print(t_cmds *cmds, int ac)
+{
+	for (int i = 0; i < ac; i++)
+	{
+		for (int j = 0; j < cmds[i].len; j++)
+			printf("%s ", cmds[i].arg[j]);
+		printf(" [%d|%d|%d]\n", cmds[i].in, cmds[i].out, cmds[i].len);
 	}
 }
 
 int main(int ac, char **av, char **env)
 {
-	t_cmds *head;
-	t_cmds *current;
-
-	ac--;
-	current = init_cmd(ac);
-	head = current;
+	t_cmds *cmds;
+	(void)env;
+	ac = compt_arg(av);
+	cmds = init_cmd(ac);
+	int k = 0;
 	while (*++av)
 	{
-		if(strcmp(*av, ";") && strcmp(*av, "|"))
+		if (strcmp(*av, ";") && strcmp(*av, "|"))
 		{
-			add_cmd(current, *av);
+			add_cmd(cmds + k, *av);
 			continue;
 		}
-		if (*av && strcmp(*av, "|"))
-			ft_pipe(&current, ac);
-		if (*av && strcmp(*av, ";"))
-		{
-			current->next = init_cmd(ac);
-			current = current->next;
-		}
+		else if (strcmp(*av, "|"))
+			ft_pipe(cmds + k);
+		k++;
 	}
-	ft_exec_cmd(head, env);
-	ft_free(head);
+ 	ft_free(cmds, ac);
 	return (0);
 }
