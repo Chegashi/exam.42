@@ -7,7 +7,7 @@
 int main(int ac, char **av)
 {   
     (void)ac;
-    execve(NULL, av+1, 0);   // execve will execute the command for as and exit the child upon error it will not exit this child
+    execve(av[0], av, NULL);   // execve will execute the command for as and exit the child upon error it will not exit this child
     // write(1, "1\n", 2);
     // close(0);
     // write(1, "2\n", 2);

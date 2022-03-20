@@ -106,7 +106,7 @@ void ft_exec_cmd(t_cmds *cmds, int ac, char **env)
 	{
 		if (!strcmp(cmds[i].arg[0], "cd"))
 		{
-			if (cmds[i].len != 1)
+			if (cmds[i].len != 2)
 				print_error("Error cd: Bad arguments\n");
 			else if (chdir(cmds[i].arg[1]) != 0)
 				print_error("Error cd: cannot change directory\n");
@@ -135,11 +135,11 @@ void ft_exec_cmd(t_cmds *cmds, int ac, char **env)
 
 void	ft_print(t_cmds *cmds, int ac)
 {
-	for (int i = 0; i < ac; i++)
+	for (int i = 0; i < ac && cmds[i].arg[0]; i++)
 	{
 		for (int j = 0; j < cmds[i].len; j++)
 			printf("%s ", cmds[i].arg[j]);
-		printf(" [%d|%d|%d]\n", cmds[i].in, cmds[i].out, cmds[i].len);
+		printf("|| [%d|%d|%d]\n", cmds[i].in, cmds[i].out, cmds[i].len);
 	}
 }
 
@@ -161,6 +161,7 @@ int main(int ac, char **av, char **env)
 			ft_pipe(cmds + k);
 		k++;
 	}
+	ft_print(cmds, ac);
 	ft_exec_cmd(cmds, ac, env);
  	ft_free(cmds, ac);
 	return (0);
