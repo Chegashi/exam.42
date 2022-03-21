@@ -60,13 +60,13 @@ t_cmds *init_cmd(int ac)
 {
 	if (ac < 1)
 		exit (1);
-	t_cmds *cmd = (t_cmds*)malloc(sizeof(t_cmds) * (ac));
+	t_cmds *cmd = (t_cmds*)malloc(sizeof(t_cmds) * (ac + 1));
 	for (int i = 0; i < ac; i++)
 	{
 		cmd[i].in = 0;
 		cmd[i].out = 1;
 		cmd[i].len = 0;
-		cmd[i].arg = (char**)malloc(sizeof(char *) * ac);
+		cmd[i].arg = (char**)malloc(sizeof(char *) * ac + 1);
 		for (int j = 0; j < ac; j++)
 			cmd[i].arg[j] = NULL;
 	}
@@ -100,9 +100,9 @@ void ft_free(t_cmds *cmds, int ac)
 	free (cmds);
 }
 
-void ft_exec_cmd(t_cmds *cmds, int ac, char **env)
+void ft_exec_cmd(t_cmds *cmds, char **env)
 {
-	for (int i = 0; i < ac && cmds[i].arg[0]; i++)
+	for (int i = 0; cmds[i].arg[0]; i++)
 	{
 		if (!strcmp(cmds[i].arg[0], "cd"))
 		{
@@ -118,35 +118,31 @@ void ft_exec_cmd(t_cmds *cmds, int ac, char **env)
 		if (!pid)
 		{
 			if (cmds[i].in != 0)
-			{	
 				if (dup2(cmds[i].in , 0) == -1)
 					print_error("Error : FATAL\n");
-			}
 			if (cmds[i].out == 1)
-			{
 				if (dup2(cmds[i].out , 1) == -1)
 					print_error("Error : FATAL\n");
-			}
 			execve(cmds[i].arg[0], cmds[i].arg, env);
 		}
 		waitpid(0, NULL, 0);
 	}
 }
 
-void	ft_print(t_cmds *cmds, int ac)
+void	ft_print(t_cmds *cmds)
 {
-	for (int i = 0; i < ac && cmds[i].arg[0]; i++)
+	for (int i = 0; cmds[i].arg[0]; i++)
 	{
-		for (int j = 0; j < cmds[i].len; j++)
-			printf("%s ", cmds[i].arg[j]);
-		printf("|| [%d|%d|%d]\n", cmds[i].in, cmds[i].out, cmds[i].len);
+		printf("[%d|%d|%d]\n", cmds[i].in, cmds[i].out, cmds[i].len);
+		for (int j = 0; cmds[i].arg[j]; j++)
+			printf("[%p|%p] |[%d |%i]\n", cmds[i].arg[j],cmds[i].arg[j], i, j);
 	}
+	printf("\n");
 }
 
 int main(int ac, char **av, char **env)
 {
 	t_cmds *cmds;
-	(void)env;
 	ac = compt_arg(av);
 	cmds = init_cmd(ac);
 	int k = 0;
@@ -161,8 +157,8 @@ int main(int ac, char **av, char **env)
 			ft_pipe(cmds + k);
 		k++;
 	}
-	ft_print(cmds, ac);
-	ft_exec_cmd(cmds, ac, env);
+	// ft_print(cmds);
+	ft_exec_cmd(cmds, env);
  	ft_free(cmds, ac);
 	return (0);
 }
