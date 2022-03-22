@@ -27,10 +27,6 @@ gcc microsh.c -o microshell -Wall -Wextra -Werror
 ./microshell blah "|" /bin/echo OK ";"
 ./microshell ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" blah "|" /bin/echo OK ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";"
 
-
-
-
-
 # gcc microsh.c -o microshell -Wall -Wextra -Werror
 # .microshell ls
 # .microshell cat microshell.c

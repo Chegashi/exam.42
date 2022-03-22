@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-
 #define std_in 0
 #define std_out 1
 #define pipe_in	1
@@ -47,26 +46,17 @@ void print_error(char *error)
 	exit(1);
 }
 
-int compt_arg(char **av)
-{
-	int i = 0;
-	while (*++av)
-		if (strcmp(*av, ";") && strcmp(*av, "|"))
-			i++;
-	return (i);
-}
-
 t_cmds *init_cmd(int ac)
 {
 	if (ac < 1)
 		exit (1);
-	t_cmds *cmd = (t_cmds*)malloc(sizeof(t_cmds) * (ac + 1));
+	t_cmds *cmd = (t_cmds*)malloc(sizeof(t_cmds) * ac);
 	for (int i = 0; i < ac; i++)
 	{
 		cmd[i].in = 0;
 		cmd[i].out = 1;
 		cmd[i].len = 0;
-		cmd[i].arg = (char**)malloc(sizeof(char *) * ac + 1);
+		cmd[i].arg = (char**)malloc(sizeof(char *) * ac);
 		for (int j = 0; j < ac; j++)
 			cmd[i].arg[j] = NULL;
 	}
@@ -83,8 +73,8 @@ void	ft_pipe(t_cmds *cmd)
 	int fds[2];
 
 	pipe(fds);
-	cmd->in = fds[0];
-	(cmd + 1)->out = fds[1];
+	cmd->out = fds[1];
+	(cmd + 1)->in = fds[0];
 }
 
 void ft_free(t_cmds *cmds, int ac)
@@ -94,8 +84,6 @@ void ft_free(t_cmds *cmds, int ac)
 		for (int j = 0; j < cmds[i].len; j++)
 			free(cmds[i].arg[j]);
 		free(cmds[i].arg);
-		close(cmds[i].in);
-		close(cmds[i].out);
 	}
 	free (cmds);
 }
@@ -120,12 +108,22 @@ void ft_exec_cmd(t_cmds *cmds, char **env)
 			if (cmds[i].in != 0)
 				if (dup2(cmds[i].in , 0) == -1)
 					print_error("Error : FATAL\n");
-			if (cmds[i].out == 1)
+			if (cmds[i].out != 1)
+			{
 				if (dup2(cmds[i].out , 1) == -1)
 					print_error("Error : FATAL\n");
+				if (cmds[i].in != 0)
+					close(cmds[i].in);
+			}
 			execve(cmds[i].arg[0], cmds[i].arg, env);
 		}
+		// while (wait(NULL))
+		// 	;
 		waitpid(0, NULL, 0);
+		if (cmds[i].in)
+			close(cmds[i].in);
+		if (cmds[i].out != 1)
+			close(cmds[i].out);
 	}
 }
 
@@ -133,29 +131,29 @@ void	ft_print(t_cmds *cmds)
 {
 	for (int i = 0; cmds[i].arg[0]; i++)
 	{
-		printf("[%d|%d|%d]\n", cmds[i].in, cmds[i].out, cmds[i].len);
+		printf("[%d|%d]", cmds[i].in, cmds[i].out);
 		for (int j = 0; cmds[i].arg[j]; j++)
-			printf("[%p|%p] |[%d |%i]\n", cmds[i].arg[j],cmds[i].arg[j], i, j);
+			printf("[%s] ", cmds[i].arg[j]);
+		printf("\n");
 	}
-	printf("\n");
 }
 
 int main(int ac, char **av, char **env)
 {
 	t_cmds *cmds;
-	ac = compt_arg(av);
-	cmds = init_cmd(ac);
+	cmds = init_cmd(++ac);
 	int k = 0;
 	while (*++av)
 	{
-		if (strcmp(*av, ";") && strcmp(*av, "|"))
+		if (strcmp(*av, ";") != 0 && strcmp(*av, "|") != 0 )
 		{
 			add_cmd(cmds + k, *av);
 			continue;
 		}
-		else if (strcmp(*av, "|"))
+		else if (!strcmp(*av, "|"))
 			ft_pipe(cmds + k);
-		k++;
+		if (cmds[k].arg[0])
+			k++;
 	}
 	// ft_print(cmds);
 	ft_exec_cmd(cmds, env);
