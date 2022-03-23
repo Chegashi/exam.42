@@ -3,11 +3,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#define std_in 0
-#define std_out 1
-#define pipe_in	1
-#define pipe_out 2
-#define pipe_not 0
 
 typedef struct	s_cmds
 {
@@ -23,11 +18,6 @@ int	ft_strlen(char *str)
 	while (*itr++)
 		;
 	return (itr - str -1);
-}
-
-void ft_putsr(char *str)
-{
-	write(1, str, ft_strlen(str));
 }
 
 char *ft_strdup(char *str)
@@ -48,8 +38,6 @@ void print_error(char *error)
 
 t_cmds *init_cmd(int ac)
 {
-	if (ac < 1)
-		exit (1);
 	t_cmds *cmd = (t_cmds*)malloc(sizeof(t_cmds) * ac);
 	for (int i = 0; i < ac; i++)
 	{
@@ -61,11 +49,6 @@ t_cmds *init_cmd(int ac)
 			cmd[i].arg[j] = NULL;
 	}
 	return (cmd);
-}
-
-void add_cmd(t_cmds *cmd, char *av)
-{
-	cmd->arg[(cmd->len++)] = ft_strdup(av);
 }
 
 void	ft_pipe(t_cmds *cmd)
@@ -117,24 +100,11 @@ void ft_exec_cmd(t_cmds *cmds, char **env)
 			}
 			execve(cmds[i].arg[0], cmds[i].arg, env);
 		}
-		// while (wait(NULL))
-		// 	;
 		waitpid(0, NULL, 0);
 		if (cmds[i].in)
 			close(cmds[i].in);
 		if (cmds[i].out != 1)
 			close(cmds[i].out);
-	}
-}
-
-void	ft_print(t_cmds *cmds)
-{
-	for (int i = 0; cmds[i].arg[0]; i++)
-	{
-		printf("[%d|%d]", cmds[i].in, cmds[i].out);
-		for (int j = 0; cmds[i].arg[j]; j++)
-			printf("[%s] ", cmds[i].arg[j]);
-		printf("\n");
 	}
 }
 
@@ -147,7 +117,7 @@ int main(int ac, char **av, char **env)
 	{
 		if (strcmp(*av, ";") != 0 && strcmp(*av, "|") != 0 )
 		{
-			add_cmd(cmds + k, *av);
+			cmds[k].arg[cmds[k].len++] = ft_strdup(*av);
 			continue;
 		}
 		else if (!strcmp(*av, "|"))
@@ -155,7 +125,6 @@ int main(int ac, char **av, char **env)
 		if (cmds[k].arg[0])
 			k++;
 	}
-	// ft_print(cmds);
 	ft_exec_cmd(cmds, env);
  	ft_free(cmds, ac);
 	return (0);
