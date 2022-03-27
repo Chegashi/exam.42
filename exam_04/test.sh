@@ -1,4 +1,4 @@
-gcc microsh.c -o microshell -Wall -Wextra -Werror
+# gcc microsh.c -o microshell -Wall -Wextra -Werror
 ./microshell /bin/ls
 ./microshell /bin/cat microshell.c
 ./microshell /bin/ls microshell.c
@@ -26,32 +26,3 @@ gcc microsh.c -o microshell -Wall -Wextra -Werror
 ./microshell blah "|" /bin/echo OK
 ./microshell blah "|" /bin/echo OK ";"
 ./microshell ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" blah "|" /bin/echo OK ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";" ";"
-
-# gcc microsh.c -o microshell -Wall -Wextra -Werror
-# .microshell ls
-# .microshell cat microshell.c
-# .microshell ls microshell.c
-# .microshell ls salut
-# .microshell ;
-# .microshell ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
-# .microshell ; ; echo OK
-# .microshell ; ; echo OK ;
-# .microshell ; ; echo OK ; ;
-# .microshell ; ; echo OK ; ; ; echo OK
-# .microshell ls | usrgrep microshell
-# .microshell ls | usrgrep microshell | usrgrep micro
-# .microshell ls | usrgrep microshell | usrgrep micro | usrgrep shell | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro
-# .microshell ls | usrgrep microshell | usrgrep micro | usrgrep shell | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep micro | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell | usrgrep shell
-# .microshell ls ewqew | usrgrep micro | cat -n ; echo dernier ; echo
-# .microshell ls | usrgrep micro | cat -n ; echo dernier ; echo ftest ;
-# .microshell echo ftest ; echo ftewerwerwerst ; echo werwerwer ; echo qweqweqweqew ; echo qwewqeqrtregrfyukui ;
-# .microshell ls ftest ; ls ; ls werwer ; ls microshell.c ; ls subject.fr.txt ;
-# .microshell ls | usrgrep micro ; ls | usrgrep micro ; ls | usrgrep micro ; ls | usrgrep micro ;
-# .microshell cat reserv_microsh.c | usrgrep a | usrgrep b ; cat reserv_microsh.c ;
-# .microshell cat reserv_microsh.c | usrgrep a | usrgrep w ; cat reserv_microsh.c ;
-# .microshell cat reserv_microsh.c | usrgrep a | usrgrep w ; cat reserv_microsh.c
-# .microshell cat reserv_microsh.c ; cat reserv_microsh.c | usrgrep a | usrgrep b | usrgrep z ; cat reserv_microsh.c
-# .microshell ; cat reserv_microsh.c ; cat reserv_microsh.c | usrgrep a | usrgrep b | usrgrep z ; cat reserv_microsh.c
-# .microshell blah | echo OK
-# .microshell blah | echo OK ;
-# .microshell ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; blah | echo OK ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;

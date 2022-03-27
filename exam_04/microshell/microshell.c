@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -92,12 +91,8 @@ void ft_exec_cmd(t_cmds *cmds, char **env)
 				if (dup2(cmds[i].in , 0) == -1)
 					print_error("Error : FATAL\n");
 			if (cmds[i].out != 1)
-			{
 				if (dup2(cmds[i].out , 1) == -1)
 					print_error("Error : FATAL\n");
-				if (cmds[i].in != 0)
-					close(cmds[i].in);
-			}
 			execve(cmds[i].arg[0], cmds[i].arg, env);
 		}
 		waitpid(0, NULL, 0);
