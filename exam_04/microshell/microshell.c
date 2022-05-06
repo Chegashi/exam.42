@@ -83,8 +83,8 @@ void ft_exec_cmd(t_cmds *cmds, char **env)
 	{
 		if (!strcmp(cmds[i].arg[0], "cd"))
 		{
-			if (cmds[i].len != 2)
-				print_error("Error cd: Bad arguments\n", "");
+			if (cmds[i].len != 2 || cmds[i + 1].len)
+				print_error("Error cd: Bad arguments", "");
 			else if (chdir(cmds[i].arg[1]) != 0)
 				print_error("Error cd: cannot change directory", cmds[i].arg[1]);
 			continue;
