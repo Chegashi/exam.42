@@ -14,9 +14,9 @@
 class Warlock
 {
 	private:
-		std::string name;
-		std::string title;
-		std::map<std::string, ASpell*> spells;
+		std::string	name;
+		std::string	title;
+		std::map<std::string, ASpell*>	spells;
 
 	public:
 		Warlock(std::string const & name, std::string const & title);
