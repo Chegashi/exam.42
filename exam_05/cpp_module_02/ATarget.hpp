@@ -1,55 +1,36 @@
 #ifndef ATARGET_HPP
 #define ATARGET_HPP
-
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "ASpell.hpp"
 
-class ATarget
+class ATarget : public ASpell
 {
-	private:
+	protected:
 		std::string type;
+	
 	public:
-		ATarget(std::string const & type);
-		ATarget(ATarget const & src);
-		ATarget & operator=(ATarget const & rhs);
-		~ATarget();
-		std::string const getType() const;
-		virtual class ATarget * clone() const = 0;
-		void getHitBySpell(ASpell const & as);
+		std::string const &getType() const { return this->type; }
+		ATarget(std::string type) : type(type) { };
+
+		ATarget(class ATarget &rhs) { *this = rhs; }
+
+		ATarget();
+
+		virtual ~ATarget(){}
+
+		ATarget &operator =(ATarget &rhs)
+		{
+			this->type = rhs.getType();
+			return *this;
+		}
+
+		void getHitBySpell(ASpell const &as) const
+			{ std::cout << this->type << " has been " << as.getEffects() << "!" << std::endl; }
+
+		virtual ATarget *clone(void) const = 0;
 };
 
-ATarget::ATarget(std::string const & type)
-{
-	this->type = type;
-}
-
-ATarget::ATarget(ATarget const & src)
-{
-	*this = src;
-}
-
-ATarget & ATarget::operator=(ATarget const & rhs)
-{
-	if (this != &rhs)
-		this->type = rhs.type;
-	return *this;
-}
-
-ATarget::~ATarget()
-{
-
-}
-
-std::string const ATarget::getType() const
-{
-	return (this->type);
-}
-
-void ATarget::getHitBySpell(ASpell const & as)
-{
-	std::cout << this->type << " has been " << as.getEffects() << "!" << std::endl;
-}
 
 #endif

@@ -1,23 +1,20 @@
 #ifndef Fireball_HPP
 #define Fireball_HPP
 
+#include <iostream>
+#include <string>
+
 #include "ASpell.hpp"
 
 class Fireball : public ASpell
-{
+{	
 	public:
-		Fireball();
-		Fireball * clone() const;
+
+		Fireball() : ASpell("Fireball", "burnt to a crisp") {}
+
+		~Fireball() { }
+
+		ASpell *clone() const { return (new Fireball);};
 };
-
-Fireball::Fireball() : ASpell("Fireball", "burnt to a crisp")
-{
-
-}
-
-Fireball* Fireball::clone() const
-{
-	return new Fireball();
-}
 
 #endif

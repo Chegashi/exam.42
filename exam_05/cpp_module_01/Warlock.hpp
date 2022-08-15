@@ -30,8 +30,7 @@ class Warlock
 
 		Warlock(const Warlock &rhs){ *this = rhs; }
 
-		Warlock operator =(const Warlock &rhs)
-		{
+		Warlock operator =(const Warlock &rhs){
 			this->name = rhs.name;
 			this->title = rhs.title;
 			return *this;
@@ -41,23 +40,19 @@ class Warlock
 			{ std::cout << this->name << ": My job here is done!" << std::endl; }
 
 		void introduce() const
-		{
-			std::cout << this->name << ": I am " << this->name << ", " << this->title << "!" << std::endl;
-		}
+			{ std::cout << this->name << ": I am " << this->name << ", " << this->title << "!" << std::endl; }
 
 		void learnSpell(ASpell *as)
 			{ _map.insert(std::make_pair(as->getName(), as)); }
 
-		void forgetSpell(std::string name)
-		{
+		void forgetSpell(std::string name){
 			std::map<std::string, ASpell*>::iterator it;
 			it = _map.find(name);
 			if (it != _map.end())
 				_map.erase(it);
 		}
 
-		void launchSpell(std::string name, ATarget &atrg)
-		{
+		void launchSpell(std::string name, ATarget &atrg){
 			std::map<std::string, ASpell*>::iterator it;
 			it = _map.find(name);
 			if (it != _map.end())

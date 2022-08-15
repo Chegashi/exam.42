@@ -7,51 +7,22 @@
 
 class SpellBook
 {
+	private:
+		std::map<std::string, ASpell*>	book;
+
 	public:
-		SpellBook();
-		~SpellBook();
-		void forgetSpell(std::string const & src);
-		ASpell* createSpell(std::string const &);
-		void	learnSpell(ASpell *ptr);
-		std::map<std::string, ASpell*>::iterator begin();
-		std::map<std::string, ASpell*>::iterator end();
-		private:
-			std::map<std::string, ASpell*>	book;
+		SpellBook(){};
+
+		~SpellBook(){};
+
+		void	learnSpell(ASpell *ptr)
+			{ this->book.insert(std:: make_pair(ptr->getName(), ptr)); }
+
+		void forgetSpell(std::string const & src)
+			{ this->book.erase(src); }
+
+		ASpell* createSpell(std::string const &src)
+			{ return (book[src]); }
 };
-
-SpellBook::SpellBook()
-{
-
-}
-
-SpellBook::~SpellBook()
-{
-
-}
-
-void	SpellBook::learnSpell(ASpell *ptr)
-{
-	this->book.insert(std:: make_pair(ptr->getName(), ptr));
-}
-
-void	SpellBook::forgetSpell(std::string const & src)
-{
-	this->book.erase(src);
-}
-
-ASpell*	SpellBook::createSpell(std::string const &src)
-{
-	return (book[src]);
-}
-
-std::map<std::string, ASpell*>::iterator	SpellBook::begin()
-{
-	return (book.begin());
-}
-
-std::map<std::string, ASpell*>::iterator	SpellBook::end()
-{
-	return (book.end());
-}
 
 #endif
