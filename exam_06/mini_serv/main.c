@@ -63,15 +63,15 @@ int main() {
 		printf("socket creation failed...\n"); 
 		exit(0); 
 	} 
-	else
-		printf("Socket successfully created..\n"); 
+	// else
+		// printf("Socket successfully created..\n"); 
 	bzero(&servaddr, sizeof(servaddr)); 
 
 	// assign IP, PORT 
 	servaddr.sin_family = AF_INET; 
 	servaddr.sin_addr.s_addr = htonl(2130706433); //127.0.0.1
 	servaddr.sin_port = htons(8081); 
-  
+
 	// Binding newly created socket to given IP and verification 
 	if ((bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr))) != 0) { 
 		printf("socket bind failed...\n"); 
